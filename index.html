@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinaVie — Gérez vos finances</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="shortcut icon" href="ChatGPT_Image_Apr_23__2026__07_32_47_AM-removebg-preview.png" type="image/png">
+  <link rel="icon" href="logo.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+<!-- ========== SPLASH / AUTH OVERLAY ========== -->
+<div id="auth-overlay" class="auth-overlay active">
+  <div class="auth-bg-orbs">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+  </div>
+
+  <!-- Landing Page (not logged in) -->
+  <div id="landing-page" class="auth-panel">
+    <div class="auth-logo">
+      <i class="fa-solid fa-leaf"></i>
+      <span>FinaVie</span>
+    </div>
+    <div class="landing-hero">
+      <h1>Gérez vos finances<br /><span class="text-accent">en toute simplicité</span></h1>
+      <p>Prenez le contrôle de votre argent, atteignez vos objectifs et construisez votre avenir sereinement.</p>
+      <div class="landing-btns">
+        <button class="btn-primary" onclick="showPanel('register-panel')">Commencer gratuitement <i class="fa-solid fa-arrow-right"></i></button>
+        <button class="btn-ghost" onclick="showPanel('login-panel')">Se connecter <i class="fa-solid fa-play"></i></button>
+      </div>
+    </div>
+    <div class="landing-features">
+      <div class="feat-pill"><i class="fa-solid fa-shield-halved"></i> Sécurité 256-bit SSL</div>
+      <div class="feat-pill"><i class="fa-solid fa-chart-pie"></i> Tableaux de bord clairs</div>
+      <div class="feat-pill"><i class="fa-solid fa-bullseye"></i> Suivi des objectifs</div>
+      <div class="feat-pill"><i class="fa-solid fa-university"></i> Liaison bancaire</div>
+    </div>
+  </div>
+
+  <!-- Login Panel -->
+  <div id="login-panel" class="auth-panel hidden">
+    <div class="auth-logo">
+      <i class="fa-solid fa-leaf"></i>
+      <span>FinaVie</span>
+    </div>
+    <div class="auth-card">
+      <h2>Connexion</h2>
+      <p class="auth-sub">Bon retour parmi nous !</p>
+      <div class="form-group">
+        <label>Adresse e-mail</label>
+        <div class="input-wrap"><i class="fa-solid fa-envelope"></i><input type="email" id="login-email" placeholder="vous@exemple.com" /></div>
+      </div>
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <div class="input-wrap"><i class="fa-solid fa-lock"></i><input type="password" id="login-password" placeholder="••••••••" /><i class="fa-solid fa-eye toggle-pw" onclick="togglePW(this)"></i></div>
+      </div>
+      <div id="login-error" class="form-error hidden"></div>
+      <button class="btn-primary full" onclick="handleLogin()">Se connecter <i class="fa-solid fa-arrow-right"></i></button>
+      <p class="auth-switch">Pas encore de compte ? <a onclick="showPanel('register-panel')">S'inscrire</a></p>
+      <button class="btn-back" onclick="showPanel('landing-page')"><i class="fa-solid fa-arrow-left"></i> Retour</button>
+    </div>
+  </div>
+
+  <!-- Register Panel -->
+  <div id="register-panel" class="auth-panel hidden">
+    <div class="auth-logo">
+      <i class="fa-solid fa-leaf"></i>
+      <span>FinaVie</span>
+    </div>
+    <div class="auth-card">
+      <h2>Créer un compte</h2>
+      <p class="auth-sub">Rejoignez des milliers d'utilisateurs</p>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Prénom</label>
+          <div class="input-wrap"><i class="fa-solid fa-user"></i><input type="text" id="reg-firstname" placeholder="Jean" /></div>
+        </div>
+        <div class="form-group">
+          <label>Nom</label>
+          <div class="input-wrap"><i class="fa-solid fa-user"></i><input type="text" id="reg-lastname" placeholder="Dupont" /></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Adresse e-mail</label>
+        <div class="input-wrap"><i class="fa-solid fa-envelope"></i><input type="email" id="reg-email" placeholder="vous@exemple.com" /></div>
+      </div>
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <div class="input-wrap"><i class="fa-solid fa-lock"></i><input type="password" id="reg-password" placeholder="8 caractères minimum" /><i class="fa-solid fa-eye toggle-pw" onclick="togglePW(this)"></i></div>
+      </div>
+      <div class="form-group">
+        <label>Confirmer le mot de passe</label>
+        <div class="input-wrap"><i class="fa-solid fa-lock"></i><input type="password" id="reg-confirm" placeholder="••••••••" /></div>
+      </div>
+      <div id="reg-error" class="form-error hidden"></div>
+      <button class="btn-primary full" onclick="handleRegister()">Créer mon compte <i class="fa-solid fa-arrow-right"></i></button>
+      <p class="auth-switch">Déjà un compte ? <a onclick="showPanel('login-panel')">Se connecter</a></p>
+      <button class="btn-back" onclick="showPanel('landing-page')"><i class="fa-solid fa-arrow-left"></i> Retour</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MAIN APP ========== -->
+<div id="app" class="app hidden">
+
+  <!-- Sidebar backdrop overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <i class="fa-solid fa-leaf"></i>
+      <span>FinaVie</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-page="dashboard"><i class="fa-solid fa-house"></i><span>Tableau de bord</span></a>
+      <a href="#" class="nav-item" data-page="transactions"><i class="fa-solid fa-arrows-left-right"></i><span>Transactions</span></a>
+      <a href="#" class="nav-item" data-page="budgets"><i class="fa-solid fa-chart-pie"></i><span>Budgets</span></a>
+      <a href="#" class="nav-item" data-page="goals"><i class="fa-solid fa-bullseye"></i><span>Objectifs</span></a>
+      <a href="#" class="nav-item" data-page="banks"><i class="fa-solid fa-university"></i><span>Comptes bancaires</span></a>
+      <a href="#" class="nav-item" data-page="analytics"><i class="fa-solid fa-chart-line"></i><span>Analyses</span></a>
+      <a href="#" class="nav-item" data-page="security"><i class="fa-solid fa-shield-halved"></i><span>Sécurité</span></a>
+      <a href="#" class="nav-item" data-page="settings"><i class="fa-solid fa-gear"></i><span>Paramètres</span></a>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-avatar" id="sidebar-avatar">JD</div>
+      <div class="user-info">
+        <div id="sidebar-name" class="user-name">Jean Dupont</div>
+        <div class="user-role">Compte Premium</div>
+      </div>
+      <button onclick="handleLogout()" class="logout-btn" title="Déconnexion"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>
+  </aside>
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <button class="hamburger" id="hamburger" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+    <div class="topbar-title" id="topbar-title">Tableau de bord</div>
+    <div class="topbar-right">
+      <div class="notif-btn" onclick="toggleNotifications()">
+        <i class="fa-solid fa-bell"></i>
+        <span class="notif-badge" id="notif-badge">3</span>
+      </div>
+      <div class="user-mini" id="user-mini">JD</div>
+    </div>
+  </header>
+
+  <!-- Notifications dropdown -->
+  <div class="notif-dropdown hidden" id="notif-dropdown">
+    <div class="notif-header">Notifications <button onclick="clearNotifications()">Tout marquer comme lu</button></div>
+    <div id="notif-list"></div>
+  </div>
+
+  <!-- Main content area -->
+  <main class="main-content">
+
+    <!-- ===== DASHBOARD PAGE ===== -->
+    <div id="page-dashboard" class="page active">
+      <div class="page-header">
+        <div>
+          <h1 id="greeting">Bonjour, Jean ! 👋</h1>
+          <p class="page-subtitle">Voici un aperçu de vos finances</p>
+        </div>
+        <button class="btn-primary" onclick="openModal('add-transaction-modal')"><i class="fa-solid fa-plus"></i> Ajouter</button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card green">
+          <div class="stat-icon"><i class="fa-solid fa-wallet"></i></div>
+          <div class="stat-info">
+            <div class="stat-label">Solde total</div>
+            <div class="stat-value" id="stat-balance">0,00 €</div>
+            <div class="stat-change positive" id="stat-balance-change">+0,0%</div>
+          </div>
+        </div>
+        <div class="stat-card yellow">
+          <div class="stat-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+          <div class="stat-info">
+            <div class="stat-label">Revenus ce mois</div>
+            <div class="stat-value" id="stat-income">0,00 €</div>
+            <div class="stat-change positive"><i class="fa-solid fa-arrow-up"></i> Ce mois</div>
+          </div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-icon"><i class="fa-solid fa-arrow-trend-down"></i></div>
+          <div class="stat-info">
+            <div class="stat-label">Dépenses ce mois</div>
+            <div class="stat-value" id="stat-expenses">0,00 €</div>
+            <div class="stat-change negative"><i class="fa-solid fa-arrow-down"></i> Ce mois</div>
+          </div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-icon"><i class="fa-solid fa-piggy-bank"></i></div>
+          <div class="stat-info">
+            <div class="stat-label">Épargne totale</div>
+            <div class="stat-value" id="stat-savings">0,00 €</div>
+            <div class="stat-change positive">Objectifs en cours</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Chart -->
+        <div class="glass-card chart-card">
+          <div class="card-header">
+            <h3>Évolution financière</h3>
+            <div class="chart-tabs">
+              <button class="chart-tab active" onclick="setChartPeriod('week',this)">Semaine</button>
+              <button class="chart-tab" onclick="setChartPeriod('month',this)">Mois</button>
+              <button class="chart-tab" onclick="setChartPeriod('year',this)">Année</button>
+            </div>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="main-chart"></canvas>
+          </div>
+        </div>
+
+        <!-- Pie chart -->
+        <div class="glass-card pie-card">
+          <div class="card-header"><h3>Dépenses par catégorie</h3></div>
+          <div class="chart-wrapper chart-wrapper--pie">
+            <canvas id="pie-chart"></canvas>
+          </div>
+          <div id="pie-legend" class="pie-legend"></div>
+        </div>
+
+        <!-- Recent transactions -->
+        <div class="glass-card transactions-card">
+          <div class="card-header">
+            <h3>Transactions récentes</h3>
+            <a href="#" onclick="navigateTo('transactions')" class="see-all">Voir tout <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+          <div id="recent-tx-list" class="tx-list"></div>
+        </div>
+
+        <!-- Goals preview -->
+        <div class="glass-card goals-card">
+          <div class="card-header">
+            <h3>Mes objectifs</h3>
+            <a href="#" onclick="navigateTo('goals')" class="see-all">Voir tout <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+          <div id="dashboard-goals-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TRANSACTIONS PAGE ===== -->
+    <div id="page-transactions" class="page hidden">
+      <div class="page-header">
+        <div><h1>Transactions</h1><p class="page-subtitle">Historique complet de vos mouvements</p></div>
+        <button class="btn-primary" onclick="openModal('add-transaction-modal')"><i class="fa-solid fa-plus"></i> Ajouter</button>
+      </div>
+      <div class="filter-bar">
+        <div class="search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="tx-search" placeholder="Rechercher..." oninput="filterTransactions()" /></div>
+        <select id="tx-category-filter" onchange="filterTransactions()" class="filter-select">
+          <option value="">Toutes catégories</option>
+          <option value="Logement">Logement</option>
+          <option value="Alimentation">Alimentation</option>
+          <option value="Transport">Transport</option>
+          <option value="Loisirs">Loisirs</option>
+          <option value="Salaire">Salaire</option>
+          <option value="Santé">Santé</option>
+          <option value="Autres">Autres</option>
+        </select>
+        <select id="tx-type-filter" onchange="filterTransactions()" class="filter-select">
+          <option value="">Tous types</option>
+          <option value="income">Revenus</option>
+          <option value="expense">Dépenses</option>
+        </select>
+        <button class="btn-ghost-sm" onclick="exportTransactions()"><i class="fa-solid fa-download"></i> Exporter</button>
+      </div>
+      <div class="glass-card">
+        <div class="tx-table-wrap">
+        <table class="tx-table">
+          <thead><tr><th>Date</th><th>Description</th><th>Catégorie</th><th>Compte</th><th>Montant</th><th>Actions</th></tr></thead>
+          <tbody id="tx-table-body"></tbody>
+        </table>
+        </div>
+        <div id="tx-empty" class="empty-state hidden"><i class="fa-solid fa-receipt"></i><p>Aucune transaction trouvée</p></div>
+      </div>
+    </div>
+
+    <!-- ===== BUDGETS PAGE ===== -->
+    <div id="page-budgets" class="page hidden">
+      <div class="page-header">
+        <div><h1>Budgets</h1><p class="page-subtitle">Définissez vos limites de dépenses</p></div>
+        <button class="btn-primary" onclick="openModal('add-budget-modal')"><i class="fa-solid fa-plus"></i> Nouveau budget</button>
+      </div>
+      <div id="budgets-grid" class="budgets-grid"></div>
+    </div>
+
+    <!-- ===== GOALS PAGE ===== -->
+    <div id="page-goals" class="page hidden">
+      <div class="page-header">
+        <div><h1>Objectifs financiers</h1><p class="page-subtitle">Définissez et suivez vos projets</p></div>
+        <button class="btn-primary" onclick="openModal('add-goal-modal')"><i class="fa-solid fa-plus"></i> Nouvel objectif</button>
+      </div>
+      <div id="goals-grid" class="goals-grid"></div>
+    </div>
+
+    <!-- ===== BANKS PAGE ===== -->
+    <div id="page-banks" class="page hidden">
+      <div class="page-header">
+        <div><h1>Comptes bancaires</h1><p class="page-subtitle">Liez vos comptes pour un suivi automatique</p></div>
+        <button class="btn-primary" onclick="openModal('add-bank-modal')"><i class="fa-solid fa-plus"></i> Lier un compte</button>
+      </div>
+      <div id="banks-grid" class="banks-grid"></div>
+      <div class="glass-card security-info-card">
+        <i class="fa-solid fa-shield-halved"></i>
+        <div>
+          <h4>Connexion sécurisée 256-bit SSL</h4>
+          <p>Vos identifiants bancaires ne sont jamais stockés. Nous utilisons un protocole de liaison sécurisé conforme aux normes PSD2.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ANALYTICS PAGE ===== -->
+    <div id="page-analytics" class="page hidden">
+      <div class="page-header">
+        <div><h1>Analyses</h1><p class="page-subtitle">Comprenez vos habitudes financières</p></div>
+      </div>
+      <div class="analytics-grid">
+        <div class="glass-card">
+          <div class="card-header"><h3>Revenus vs Dépenses</h3></div>
+          <div class="chart-wrapper">
+            <canvas id="bar-chart"></canvas>
+          </div>
+        </div>
+        <div class="glass-card">
+          <div class="card-header"><h3>Tendance d'épargne</h3></div>
+          <div class="chart-wrapper">
+            <canvas id="savings-chart"></canvas>
+          </div>
+        </div>
+        <div class="glass-card analytics-stats">
+          <h3>Statistiques clés</h3>
+          <div id="analytics-stats-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SECURITY PAGE ===== -->
+    <div id="page-security" class="page hidden">
+      <div class="page-header">
+        <div><h1>Sécurité</h1><p class="page-subtitle">Protégez votre compte</p></div>
+      </div>
+      <div class="security-grid">
+        <div class="glass-card">
+          <h3><i class="fa-solid fa-lock"></i> Changer le mot de passe</h3>
+          <div class="form-group"><label>Mot de passe actuel</label><div class="input-wrap"><i class="fa-solid fa-lock"></i><input type="password" id="sec-current-pw" placeholder="••••••••" /></div></div>
+          <div class="form-group"><label>Nouveau mot de passe</label><div class="input-wrap"><i class="fa-solid fa-lock"></i><input type="password" id="sec-new-pw" placeholder="••••••••" /></div></div>
+          <div class="form-group"><label>Confirmer</label><div class="input-wrap"><i class="fa-solid fa-lock"></i><input type="password" id="sec-confirm-pw" placeholder="••••••••" /></div></div>
+          <button class="btn-primary" onclick="changePassword()">Mettre à jour</button>
+        </div>
+        <div class="glass-card">
+          <h3><i class="fa-solid fa-mobile-screen"></i> Double authentification</h3>
+          <p class="sec-desc">Ajoutez une couche de protection supplémentaire à votre compte.</p>
+          <div class="toggle-row">
+            <span>Activer la 2FA</span>
+            <label class="toggle"><input type="checkbox" id="2fa-toggle" onchange="toggle2FA(this)" /><span class="slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <span>Alertes de connexion</span>
+            <label class="toggle"><input type="checkbox" checked /><span class="slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <span>Notifications de dépenses inhabituelles</span>
+            <label class="toggle"><input type="checkbox" checked /><span class="slider"></span></label>
+          </div>
+        </div>
+        <div class="glass-card">
+          <h3><i class="fa-solid fa-clock-rotate-left"></i> Sessions actives</h3>
+          <div class="session-item active-session">
+            <i class="fa-solid fa-desktop"></i>
+            <div><div class="sess-device">Navigateur Web — Paris, FR</div><div class="sess-time">Maintenant (session actuelle)</div></div>
+            <span class="sess-badge">Actif</span>
+          </div>
+          <button class="btn-danger-ghost" onclick="showToast('Toutes les autres sessions ont été déconnectées.','success')">Déconnecter toutes les autres sessions</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SETTINGS PAGE ===== -->
+    <div id="page-settings" class="page hidden">
+      <div class="page-header">
+        <div><h1>Paramètres</h1><p class="page-subtitle">Personnalisez votre expérience</p></div>
+      </div>
+      <div class="settings-grid">
+        <div class="glass-card">
+          <h3>Profil</h3>
+          <div class="profile-avatar-edit">
+            <div class="big-avatar" id="settings-avatar">JD</div>
+            <button class="btn-ghost-sm" onclick="showToast('Fonctionnalité photo à venir !','info')">Changer la photo</button>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Prénom</label><div class="input-wrap"><i class="fa-solid fa-user"></i><input type="text" id="set-firstname" /></div></div>
+            <div class="form-group"><label>Nom</label><div class="input-wrap"><i class="fa-solid fa-user"></i><input type="text" id="set-lastname" /></div></div>
+          </div>
+          <div class="form-group"><label>Email</label><div class="input-wrap"><i class="fa-solid fa-envelope"></i><input type="email" id="set-email" /></div></div>
+          <button class="btn-primary" onclick="saveSettings()">Enregistrer les modifications</button>
+        </div>
+        <div class="glass-card">
+          <h3>Préférences</h3>
+          <div class="toggle-row"><span>Notifications par email</span><label class="toggle"><input type="checkbox" checked /><span class="slider"></span></label></div>
+          <div class="toggle-row"><span>Résumé hebdomadaire</span><label class="toggle"><input type="checkbox" checked /><span class="slider"></span></label></div>
+          <div class="toggle-row"><span>Alertes de dépassement de budget</span><label class="toggle"><input type="checkbox" checked /><span class="slider"></span></label></div>
+          <div class="toggle-row"><span>Mode sombre</span><label class="toggle"><input type="checkbox" id="dark-mode-toggle" onchange="toggleDarkMode(this)" /><span class="slider"></span></label></div>
+          <div class="form-group" style="margin-top:1.5rem"><label>Devise</label>
+            <select class="filter-select full" id="currency-select" onchange="saveCurrency()">
+              <option value="EUR" selected>Euro (€)</option>
+              <option value="USD">Dollar ($)</option>
+              <option value="GBP">Livre sterling (£)</option>
+              <option value="CHF">Franc suisse (CHF)</option>
+            </select>
+          </div>
+        </div>
+        <div class="glass-card danger-zone">
+          <h3><i class="fa-solid fa-triangle-exclamation"></i> Zone dangereuse</h3>
+          <p>Ces actions sont irréversibles. Procédez avec précaution.</p>
+          <button class="btn-danger" onclick="confirmResetData()">Réinitialiser toutes les données</button>
+          <button class="btn-danger" onclick="confirmDeleteAccount()">Supprimer mon compte</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Mobile bottom navigation bar -->
+  <nav class="mobile-nav" id="mobile-nav">
+    <button class="mobile-nav-item active" data-page="dashboard" onclick="mobileNavTo('dashboard',this)">
+      <i class="fa-solid fa-house"></i><span>Accueil</span>
+    </button>
+    <button class="mobile-nav-item" data-page="transactions" onclick="mobileNavTo('transactions',this)">
+      <i class="fa-solid fa-list"></i><span>Dépenses</span>
+    </button>
+    <button class="mobile-nav-item mobile-nav-add" onclick="openModal('add-transaction-modal')">
+      <i class="fa-solid fa-plus"></i><span>Ajouter</span>
+    </button>
+    <button class="mobile-nav-item" data-page="goals" onclick="mobileNavTo('goals',this)">
+      <i class="fa-solid fa-bullseye"></i><span>Objectifs</span>
+    </button>
+    <button class="mobile-nav-item" data-page="banks" onclick="mobileNavTo('banks',this)">
+      <i class="fa-solid fa-university"></i><span>Comptes</span>
+    </button>
+  </nav>
+
+</div>
+
+<!-- ========== MODALS ========== -->
+
+<!-- Add Transaction Modal -->
+<div id="add-transaction-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header"><h3>Nouvelle transaction</h3><button onclick="closeModal('add-transaction-modal')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body">
+      <div class="type-toggle">
+        <button class="type-btn active" id="type-expense" onclick="setTxType('expense')"><i class="fa-solid fa-arrow-down"></i> Dépense</button>
+        <button class="type-btn" id="type-income" onclick="setTxType('income')"><i class="fa-solid fa-arrow-up"></i> Revenu</button>
+      </div>
+      <div class="form-group"><label>Montant</label><div class="input-wrap"><i class="fa-solid fa-euro-sign"></i><input type="number" id="tx-amount" placeholder="0,00" step="0.01" /></div></div>
+      <div class="form-group"><label>Description</label><div class="input-wrap"><i class="fa-solid fa-pen"></i><input type="text" id="tx-desc" placeholder="Ex: Courses Carrefour" /></div></div>
+      <div class="form-group"><label>Catégorie</label>
+        <select id="tx-category" class="filter-select full">
+          <option value="Alimentation">Alimentation</option>
+          <option value="Logement">Logement</option>
+          <option value="Transport">Transport</option>
+          <option value="Loisirs">Loisirs</option>
+          <option value="Santé">Santé</option>
+          <option value="Salaire">Salaire</option>
+          <option value="Autres">Autres</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Compte</label>
+        <select id="tx-account" class="filter-select full"><option value="Principal">Compte principal</option></select>
+      </div>
+      <div class="form-group"><label>Date</label><div class="input-wrap"><i class="fa-solid fa-calendar"></i><input type="date" id="tx-date" /></div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('add-transaction-modal')">Annuler</button>
+      <button class="btn-primary" onclick="addTransaction()">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Goal Modal -->
+<div id="add-goal-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header"><h3>Nouvel objectif</h3><button onclick="closeModal('add-goal-modal')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body">
+      <div class="goal-icons-pick">
+        <span class="goal-icon-opt active" onclick="selectGoalIcon(this,'🌴')">🌴</span>
+        <span class="goal-icon-opt" onclick="selectGoalIcon(this,'🏠')">🏠</span>
+        <span class="goal-icon-opt" onclick="selectGoalIcon(this,'🚗')">🚗</span>
+        <span class="goal-icon-opt" onclick="selectGoalIcon(this,'📱')">📱</span>
+        <span class="goal-icon-opt" onclick="selectGoalIcon(this,'💍')">💍</span>
+        <span class="goal-icon-opt" onclick="selectGoalIcon(this,'🎓')">🎓</span>
+        <span class="goal-icon-opt" onclick="selectGoalIcon(this,'✈️')">✈️</span>
+        <span class="goal-icon-opt" onclick="selectGoalIcon(this,'💰')">💰</span>
+      </div>
+      <div class="form-group"><label>Nom de l'objectif</label><div class="input-wrap"><i class="fa-solid fa-star"></i><input type="text" id="goal-name" placeholder="Ex: Voyage en Thaïlande" /></div></div>
+      <div class="form-group"><label>Montant cible (€)</label><div class="input-wrap"><i class="fa-solid fa-euro-sign"></i><input type="number" id="goal-target" placeholder="5 000" /></div></div>
+      <div class="form-group"><label>Montant actuel (€)</label><div class="input-wrap"><i class="fa-solid fa-coins"></i><input type="number" id="goal-current" placeholder="0" /></div></div>
+      <div class="form-group"><label>Date limite</label><div class="input-wrap"><i class="fa-solid fa-calendar"></i><input type="date" id="goal-deadline" /></div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('add-goal-modal')">Annuler</button>
+      <button class="btn-primary" onclick="addGoal()">Créer l'objectif</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Budget Modal -->
+<div id="add-budget-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header"><h3>Nouveau budget</h3><button onclick="closeModal('add-budget-modal')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Catégorie</label>
+        <select id="budget-category" class="filter-select full">
+          <option>Alimentation</option><option>Logement</option><option>Transport</option>
+          <option>Loisirs</option><option>Santé</option><option>Autres</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Limite mensuelle (€)</label><div class="input-wrap"><i class="fa-solid fa-euro-sign"></i><input type="number" id="budget-limit" placeholder="500" /></div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('add-budget-modal')">Annuler</button>
+      <button class="btn-primary" onclick="addBudget()">Créer le budget</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Bank Modal -->
+<div id="add-bank-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header"><h3>Lier un compte bancaire</h3><button onclick="closeModal('add-bank-modal')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body">
+      <div class="bank-list-pick" id="bank-pick-list">
+        <div class="bank-pick-item" onclick="selectBank(this,'BNP Paribas','fa-solid fa-building-columns')"><i class="fa-solid fa-building-columns"></i><span>BNP Paribas</span></div>
+        <div class="bank-pick-item" onclick="selectBank(this,'Crédit Agricole','fa-solid fa-seedling')"><i class="fa-solid fa-seedling"></i><span>Crédit Agricole</span></div>
+        <div class="bank-pick-item" onclick="selectBank(this,'Société Générale','fa-solid fa-landmark')"><i class="fa-solid fa-landmark"></i><span>Société Générale</span></div>
+        <div class="bank-pick-item" onclick="selectBank(this,'Boursorama','fa-solid fa-b')"><i class="fa-solid fa-b"></i><span>Boursorama</span></div>
+        <div class="bank-pick-item" onclick="selectBank(this,'Revolut','fa-solid fa-r')"><i class="fa-solid fa-r"></i><span>Revolut</span></div>
+        <div class="bank-pick-item" onclick="selectBank(this,'Autre','fa-solid fa-university')"><i class="fa-solid fa-university"></i><span>Autre</span></div>
+      </div>
+      <div class="form-group"><label>Nom du compte</label><div class="input-wrap"><i class="fa-solid fa-pen"></i><input type="text" id="bank-name" placeholder="Ex: Compte courant" /></div></div>
+      <div class="form-group"><label>Solde initial (€)</label><div class="input-wrap"><i class="fa-solid fa-euro-sign"></i><input type="number" id="bank-balance" placeholder="1 500" /></div></div>
+      <div class="form-group"><label>IBAN (optionnel)</label><div class="input-wrap"><i class="fa-solid fa-hashtag"></i><input type="text" id="bank-iban" placeholder="FR76 ..." /></div></div>
+      <div class="ssl-notice"><i class="fa-solid fa-shield-halved"></i> Connexion chiffrée 256-bit SSL — vos données sont sécurisées</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('add-bank-modal')">Annuler</button>
+      <button class="btn-primary" onclick="addBank()">Lier le compte</button>
+    </div>
+  </div>
+</div>
+
+<!-- Contribute to Goal Modal -->
+<div id="contribute-goal-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header"><h3>Contribuer à l'objectif</h3><button onclick="closeModal('contribute-goal-modal')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Montant à ajouter (€)</label><div class="input-wrap"><i class="fa-solid fa-plus"></i><input type="number" id="contribute-amount" placeholder="100" /></div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('contribute-goal-modal')">Annuler</button>
+      <button class="btn-primary" onclick="contributeGoal()">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Dialog -->
+<div id="confirm-modal" class="modal-overlay hidden">
+  <div class="modal small">
+    <div class="modal-header"><h3 id="confirm-title">Confirmer</h3><button onclick="closeModal('confirm-modal')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body"><p id="confirm-message"></p></div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('confirm-modal')">Annuler</button>
+      <button class="btn-danger" id="confirm-action-btn">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast-container"></div>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
